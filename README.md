@@ -48,8 +48,7 @@ amount spent on a child in foster care by state (Figure C).
 
 
 VI. Conclusion
-The total expenditures on child foster if abortion services were illegal and resulted in an increased number of children in foster care
-(Figure G) would increase significantly and compound from current total expenditures (Figure F) in the United States.
+There would be a significant increase in total child foster care expenditures if abortion services were illegal resulting in an increased number of children in foster care (Figure G). Compare Figure G to Figure F for reference.
 
 We are aware that there are biases in the data. Data analyzed is the current data available to the public on these subjects. Further 
 examination of this data is still in process.  
