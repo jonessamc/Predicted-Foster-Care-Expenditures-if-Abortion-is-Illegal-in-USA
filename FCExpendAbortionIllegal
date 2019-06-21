@@ -1,0 +1,570 @@
+#Importing data to the R environment
+#Abortion service data per state for 2015, 2013, 2011
+
+CDC2015 = read.csv("https://www.cdc.gov/reproductivehealth/data_stats/excel/Abortions-Distributed-by-State-of-Maternal-Residence.csv", header = TRUE)  #CDC Abortion Surveillance 2015 Data
+CDC2013 = read.csv("https://www.cdc.gov/reproductivehealth/data_stats/excel/Abortions-Distributed-by-State-2013.csv", header = TRUE) #CDC Abortion Surveillance 2013 Data
+CDC2011 = read.csv("https://www.cdc.gov/reproductivehealth/data_stats/excel/Abortions-Distributed-by-State-2011.csv", header = TRUE) #CDC Abortion Surveillance 2011 Data
+
+head(CDC2015)
+
+class(CDC2015)  #verifying csv file class data frame
+#[1] "data.frame"
+
+View(CDC2015) #view the data, gain understanding of pull into R environment
+
+CopyCDC2015 <- CDC2015  #creating copy of the data frame for data munging
+
+CopyCDC2015$X #viewing column X from csv file
+#[1] State                Alabama              Alaska               Arizona              Arkansas             California**        
+#  [7] Colorado             Connecticut          Delaware             District of Columbia Florida**            Georgia             
+#[13] Hawaii               Idaho                Illinois             Indiana              Iowa                 Kansas              
+#[19] Kentucky             Louisiana            Maine                Maryland**           Massachusetts        Michigan            
+#[25] Minnesota            Mississippi          Missouri             Montana              Nebraska             Nevada              
+#[31] New Hampshire**      New Jersey           New Mexico           New York             New York City        North Carolina      
+#[37] North Dakota         Ohio                 Oklahoma             Oregon               Pennsylvania         Rhode Island        
+#[43] South Carolina       South Dakota         Tennessee            Texas                Utah                 Vermont             
+#[49] Virginia             Washington           West Virginia        Wisconsin            Wyoming              Total by residence  
+#[55]                                                                                    
+#55 Levels:  Alabama Alaska Arizona Arkansas California** Colorado Connecticut Delaware District of Columbia Florida** ... Wyoming
+
+State <- c(as.character(CopyCDC2015$X)) # create list of State column from csv file
+class(State)
+#[1] "character"
+
+CopyCDC2015$X.57  #viewing column X.57 from csv file
+# [1] Total by location of service  5,899                        1,334                        12,655                     
+#[5]  3,771                        --                           10,114                       9,938                      
+#[9]  2,785                        1,267                        72,023                       31,009                     
+#[13]  2,026                        1,272                        39,856                       7,957                      
+#[17]  3,989                        6,931                        3,188                        9,362                      
+#[21]  1,836                        --                           18,570                       27,151                     
+#[25]  9,861                        2,613                        4,765                        1,611                      
+#[29]  2,004                        7,116                        --                           22,991                     
+#[33]  4,669                        29,450                       63,646                       27,631                     
+#[37]  1,166                        20,976                       4,709                        8,610                      
+#[41]  31,818                       2,649                        5,778                        444                        
+#[45]  11,411                       53,940                       3,176                        1,265                      
+#[49]  18,663                       17,098                       1,516                        5,660                      
+#[53] --                            638,169                                                                              
+#[57]                                                          
+#53 Levels:  --  --   1,166   1,265   1,267   1,272   1,334   1,516   1,611   1,836   10,114   11,411   12,655   17,098  ... Total by location of service
+
+TotalByLocation2015 <- c(as.character(CopyCDC2015$X.57))  #create list of total by state
+class(TotalByLocation2015)
+#[1] "numeric"
+
+StateTotals2015df<- cbind.data.frame(State, TotalByLocation2015) #creating new data frame with the two pieces of information.
+head(StateTotals2015df)
+#     State2015              TotalByLocation
+#1        State Total by location of service
+#2      Alabama                       5,899 
+#3       Alaska                       1,334 
+#4      Arizona                      12,655 
+#5     Arkansas                       3,771 
+#6 California**                          -- 
+
+class(StateTotals2015df)
+#[1] "data.frame"
+
+#creating same lists for totals by state from 2013 and 2011 data to include in the data frame
+CopyCDC2013 <- CDC2013
+CopyCDC2011 <- CDC2011
+
+View(CopyCDC2013) #each csv sheet has the same number of rows and columns with the same data held in the rows and columns
+View(CopyCDC2011)
+
+TotalByLocation2013 <- c(as.character(CopyCDC2013$X.57))
+TotalByLocation2011 <- c(as.character(CopyCDC2011$X.57))
+
+Totalsdf<- cbind.data.frame(State[2:56], TotalByLocation2015[2:56], TotalByLocation2013[2:56], TotalByLocation2011[2:56]) #extra rows of blank information on original csv file, removing with []
+head(Totalsdf)
+#State[2:56] TotalByLocation2015[2:56] TotalByLocation2013[2:56] TotalByLocation2011[2:56]
+#1      Alabama                    5,899                      8,485                     9,523
+#2       Alaska                    1,334                      1,450                     1,627
+#3      Arizona                   12,655                     13,401                    14,401
+#4     Arkansas                    3,771                      3,730                     4,033
+#5 California**                       --                         --                       -- 
+#6     Colorado                   10,114                     10,199                    10,474
+
+str(Totalsdf)
+#'data.frame':	55 obs. of  4 variables:
+#$ State[2:56]              : Factor w/ 54 levels "","Alabama","Alaska",..: 2 3 4 5 6 7 8 9 10 11 ...
+#$ TotalByLocation2015[2:56]: num  41 8 14 30 3 12 52 22 6 48 ...
+#$ TotalByLocation2013[2:56]: num  41 8 14 30 3 12 52 22 6 48 ...
+#$ TotalByLocation2011[2:56]: num  41 8 14 30 3 12 52 22 6 48 ...
+
+
+#Children in Foster Care system by state for 2015, 2013, 2011
+library(readxl) #extracted 2015, 2013, and 2011 data in excel as data was clean and used filtering tool.
+ChildrenInFosterExcelEdit<- read_excel("Children in foster care (3) State year number data.xlsx") #data is from KidsKount Data Center, https://datacenter.kidscount.org/data/tables/6243-children-in-foster-care#detailed/1/any/false/871,870,573,869,36,868,867,133,38,35/any/12987
+head(ChildrenInFosterExcelEdit)
+# A tibble: 6 x 4
+#Location      `2015` `2013` `2011`
+#<chr>         <chr>  <chr>  <chr> 
+# 1 United States 427901 402172 397885
+#2 Alabama       4745   4532   5253  
+#3 Alaska        2653   1982   1871  
+#4 Arizona       17738  14399  10883 
+#5 Arkansas      4548   3797   3732  
+#6 California    55983  56577  54754
+
+View(ChildrenInFosterExcelEdit)
+
+class(ChildrenInFosterExcelEdit)
+#[1] "tbl_df"     "tbl"        "data.frame"
+
+dfCFYTotal = as.data.frame(ChildrenInFosterExcelEdit) #converting tbl_df into class data.frame
+class(dfCFYTotal)
+#[1] "data.frame"
+
+table(dfCFYTotal$Location) #ensuring there is only one Location per state, plus United States and Puerto Rico.
+
+#Alabama               Alaska              Arizona             Arkansas           California             Colorado 
+#1                    1                    1                    1                    1                    1 
+#Connecticut             Delaware District of Columbia              Florida              Georgia               Hawaii 
+#1                    1                    1                    1                    1                    1 
+#Idaho             Illinois              Indiana                 Iowa               Kansas             Kentucky 
+#1                    1                    1                    1                    1                    1 
+#Louisiana                Maine             Maryland        Massachusetts             Michigan            Minnesota 
+#1                    1                    1                    1                    1                    1 
+#Mississippi             Missouri              Montana             Nebraska               Nevada        New Hampshire 
+#1                    1                    1                    1                    1                    1 
+#New Jersey           New Mexico             New York       North Carolina         North Dakota                 Ohio 
+#1                    1                    1                    1                    1                    1 
+#Oklahoma               Oregon         Pennsylvania          Puerto Rico         Rhode Island       South Carolina 
+#1                    1                    1                    1                    1                    1 
+#South Dakota            Tennessee                Texas        United States                 Utah              Vermont 
+#1                    1                    1                    1                    1                    1 
+#Virginia           Washington        West Virginia            Wisconsin              Wyoming 
+#1                    1                    1                    1                    1 
+
+summary(dfCFYTotal)
+#Location             2015               2013               2011          
+#Length:53          Length:53          Length:53          Length:53         
+#Class :character   Class :character   Class :character   Class :character  
+#Mode  :character   Mode  :character   Mode  :character   Mode  :character 
+
+sapply(dfCFYTotal, mode)
+#   Location        2015        2013        2011 
+#"character" "character" "character" "character" 
+
+col_headingsCFT <- c('Location','Totals2015','Totals2013','Totals2011')
+names(dfCFYTotal) <- col_headingsCFT
+
+head(dfCFYTotal)
+#       Location Totals2015 Totals2013 Totals2011
+#1 United States     427901     402172     397885
+#2       Alabama       4745       4532       5253
+#3        Alaska       2653       1982       1871
+#4       Arizona      17738      14399      10883
+#5      Arkansas       4548       3797       3732
+#6    California      55983      56577      54754
+
+
+dfCFYTotal[, 2:4] <- lapply(dfCFYTotal[ , 2:4], function(x) as.numeric(dfCFYTotal$Totals2015))  #converting columns Totals20xx into numeric vectors
+str(dfCFYTotal)
+#'data.frame':	53 obs. of  4 variables:
+#$ Location  : chr  "United States" "Alabama" "Alaska" "Arizona" ...
+#$ Totals2015: num  427901 4745 2653 17738 4548 ...
+#$ Totals2013: num  427901 4745 2653 17738 4548 ...
+#$ Totals2011: num  427901 4745 2653 17738 4548 ...
+
+
+#Spending on Child Welfare Data 2016
+library(readxl) #edited in excel as data is very clean and easily editable for the purpose of the project
+ChildFosterSpend<- read_excel("SFY2016DataTable_ChildTrends_December2018 (1) Spending on child welfare data.xlsx") #data is from KidsKount Data Center, https://datacenter.kidscount.org/data/tables/6243-children-in-foster-care#detailed/1/any/false/871,870,573,869,36,868,867,133,38,35/any/12987
+head(ChildFosterSpend)
+## A tibble: 6 x 10
+#`Child Welfare Financing SFY 2016~ ...2     ...3      ...4     ...5        ...6       ...7          ...8       ...9        ...10     
+#<chr>                              <chr>    <chr>     <chr>    <chr>       <chr>      <chr>         <chr>      <chr>       <chr>     
+#1 STATE                              Title I~ Title IV~ Medicai~ SSBG        TANF (r)   Other Federa~ TOTAL FED~ TOTAL STAT~ TOTAL EXP~
+#2 Alabama (a)                        23224063 10648372  0        22966908    8807141    1525822       67172306   Unable to ~ 67172306  
+#3 Alaska                             37075464 410621    598121   2802437     2589103    2668117.5     46143863.5 99168369    145312232~
+#4 Arizona                            2717782~ 13847689  0        21043599    129467396  12277057      448413973  442351088   890765061 
+#5 Arkansas (b)                       62862921 6761984   886472   10630617.5~ 10342731.~ 1319498.19    92804224.~ 62120943    154925167~
+#6 California                         1770763~ 62385879  1415645~ 278616158   246569396  5254728       2505154248 1932729891  4437884139
+
+dfSpendTotals = as.data.frame(ChildFosterSpend) #converting tbl_df into class data.frame
+class(dfSpendTotals)
+#[1] "data.frame"
+
+summary(dfSpendTotals)
+# Child Welfare Financing SFY 2016: State-Level Data Table     ...2               ...3               ...4               ...5          
+#Length:77                                                Length:77          Length:77          Length:77          Length:77         
+#Class :character                                         Class :character   Class :character   Class :character   Class :character  
+#Mode  :character                                         Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+#...6               ...7               ...8               ...9              ...10          
+#Length:77          Length:77          Length:77          Length:77          Length:77         
+#Class :character   Class :character   Class :character   Class :character   Class :character  
+#Mode  :character   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+
+colnames(dfSpendTotals) = dfSpendTotals[1, ] #making first row the header
+dfSpendTotals = dfSpendTotals[-1, ] 
+head(dfSpendTotals)
+#         STATE Title IV-E Title IV-B (p) Medicaid (q)               SSBG           TANF (r) Other Federal Sources (s)
+#2  Alabama (a)   23224063       10648372            0           22966908            8807141                   1525822
+#3       Alaska   37075464         410621       598121            2802437            2589103                 2668117.5
+#4      Arizona  271778232       13847689            0           21043599          129467396                  12277057
+#5 Arkansas (b)   62862921        6761984       886472 10630617.550000001 10342731.439999999                1319498.19
+#6   California 1770763585       62385879    141564502          278616158          246569396                   5254728
+#7 Colorado (c)   90633811        6854182      4240076           23900382                  0                 534738.22
+#      TOTAL FEDERAL TOTAL STATE AND LOCAL TOTAL EXPENDITURES
+#2           67172306     Unable to provide           67172306
+#3         46143863.5              99168369        145312232.5
+#4          448413973             442351088          890765061
+#5 92804224.179999992              62120943 154925167.18000001
+#6         2505154248            1932729891         4437884139
+#7       126163189.22    241164147.36000001 367327336.58000004
+
+col_headingsSpend <- c('Location','TitleIV_E','TitleIV_B','Medicaid', 'SSBG', 'TANF','OtherFederalSources','TOTAL_FED','TOTAL_STATE','TOTAL_EXPEND')
+names(dfSpendTotals) <- col_headingsSpend
+str(dfSpendTotals)
+#'data.frame':	76 obs. of  10 variables:
+#$ Location           : chr  "Alabama (a)" "Alaska" "Arizona" "Arkansas (b)" ...
+#$ TitleIV_E          : chr  "23224063" "37075464" "271778232" "62862921" ...
+#$ TitleIV_B          : chr  "10648372" "410621" "13847689" "6761984" ...
+#$ Medicaid           : chr  "0" "598121" "0" "886472" ...
+#$ SSBG               : chr  "22966908" "2802437" "21043599" "10630617.550000001" ...
+#$ TANF               : chr  "8807141" "2589103" "129467396" "10342731.439999999" ...
+#$ OtherFederalSources: chr  "1525822" "2668117.5" "12277057" "1319498.19" ...
+#$ TOTAL_FED          : chr  "67172306" "46143863.5" "448413973" "92804224.179999992" ...
+#$ TOTAL_STATE        : chr  "Unable to provide" "99168369" "442351088" "62120943" ...
+#$ TOTAL_EXPEND       : chr  "67172306" "145312232.5" "890765061" "154925167.18000001" ...
+
+facTFed <- as.factor(dfSpendTotals$TOTAL_FED)
+facTState <- as.factor(dfSpendTotals$TOTAL_STATE)
+facTExpend<- as.factor(dfSpendTotals$TOTAL_EXPEND)
+
+str(facTExpend)
+#Factor w/ 53 levels "1024507983","1085562575.0899999",..: 41 8 51 9 29 26 47 43 21 5 ...
+
+
+
+
+
+#creating new data frame that contains data from all 3 data frames. 
+#Current data frames and description:
+#Totalsdf <- Total number of abortion services preformed per state, years 2015, 2013, 2011 (most current data 2015)
+#dfCFYTotal<- Total number of children in foster care by state. Data is from 2015, 2013, and 2011 to most closely correlate project
+#dfSpendTotals - Per state data for how much was spent on child welfare in 2016 (most current data). Total Federal, Total State, and Total Expend is in numeric form with lists
+
+View(dfCFYTotal)
+View(Totalsdf)
+
+nrow(dfCFYTotal)
+#[1] 53
+nrow(Totalsdf)
+#[1] 55
+
+Totalsdf1<- Totalsdf[-c(9,34),] #need to remove these rows of data as they do not match other data frame fields
+
+dfCFYTotal[nrow(dfCFYTotal)+2,] <- NA  #adding rows to dfCYTotal in preparation of using cbind
+
+nrow(dfCFYTotal)
+#[1] 57
+nrow(Totalsdf)
+#[1] 55
+CompleteDF <- cbind(dfCFYTotal[2:53,], Totalsdf1[1:52,]) #combining two data frames to start, selecting relevant rows. 
+head(CompleteDF)
+#    Location Totals2015 Totals2013 Totals2011  State[2:56] TotalByLocation2015[2:56] TotalByLocation2013[2:56]
+#2    Alabama       4745       4745       4745      Alabama                    5,899                      8,485
+#3     Alaska       2653       2653       2653       Alaska                    1,334                      1,450
+#4    Arizona      17738      17738      17738      Arizona                   12,655                     13,401
+#5   Arkansas       4548       4548       4548     Arkansas                    3,771                      3,730
+#6 California      55983      55983      55983 California**                       --                         --
+#  7   Colorado       5644       5644       5644     Colorado                   10,114                     10,199
+#TotalByLocation2011[2:56]
+#2                     9,523
+#3                     1,627
+#4                    14,401
+#5                     4,033
+#6                       -- 
+#  7                    10,474
+
+class(facTFed)
+#[1] "factor"  #need to coerce factor to numeric
+
+library(varhandle)  
+federal <- unfactor(facTFed)
+state <- unfactor(facTState)
+Expend <- unfactor(facTExpend)
+class(federal)  #all factor lists are now numeric and kept their values from the orignial data
+#[1] "numeric"
+class(state)
+#[1] "character"
+
+federalSpend<-federal[-c(10, 41, 54:75)]
+stateSpend<- state[-c(10, 41, 54:75)]
+totalExpend <- Expend[-c(10, 41, 54:75)]
+length(federalSpend)
+#[1] 52
+as.numeric(state)
+#[1] 16384092843          NA    99168369   442351088    62120943  1932729891   241164147   469472079    55923266   158289163
+#[11]   542298531   352381114    63759835    21407580   447834203   446697321   127991677   168791305   347689363    45844570
+#[21]    92743898   365130830   670925980   451490438   404558416    80255874   107782270    50179226   115114553   127794937
+#[31]    42704096   648971013    38450932  1444635189   351177758    24292643   732683045   258923669   202664645  1348422214
+#[41]     7230629   130458459    93418877    33974545   403631281   828042006   107016053    19721050   417905587   287807988
+#[51]   137705392   300703620    31661285 16384092843
+#Warning message:
+#  NAs introduced by coercion 
+
+nrow(CompleteDF)
+CompleteDF2 <- cbind(CompleteDF,federalSpend, stateSpend, totalExpend)
+head(CompleteDF2)
+#    Location Totals2015 Totals2013 Totals2011  State[2:56] TotalByLocation2015[2:56] TotalByLocation2013[2:56]
+#2    Alabama       4745       4745       4745      Alabama                    5,899                      8,485
+#3     Alaska       2653       2653       2653       Alaska                    1,334                      1,450
+#4    Arizona      17738      17738      17738      Arizona                   12,655                     13,401
+#5   Arkansas       4548       4548       4548     Arkansas                    3,771                      3,730
+#6 California      55983      55983      55983 California**                       --                         --
+#7   Colorado       5644       5644       5644     Colorado                   10,114                     10,199
+#   TotalByLocation2011[2:56] federalSpend         stateSpend totalExpend
+#2                     9,523     67172306  Unable to provide    67172306
+#3                     1,627     46143864           99168369   145312233
+#4                    14,401    448413973          442351088   890765061
+#5                     4,033     92804224           62120943   154925167
+#6                       --    2505154248         1932729891  4437884139
+#7                    10,474    126163189 241164147.36000001   367327337
+
+CompleteData3 <- CompleteDF2[1:50,] #need to remove last two rows of CompleteDF2 as they are not relevant and have mismatched data
+View(CompleteData3)
+
+CompleteData4 <- unfactor(CompleteData3)
+
+# CompleteData4 contains:
+#   -how many children are in foster care for 2015 2013 2011
+#   -how many abortion services were provided by state in 2015 2013 2011
+#   -how much money was spend on the child foster care system by Federal, State/Local, and Total dollars
+
+# Additional Notes: 
+#   -Totals20xx columns are associated with Children in foster care system
+#   -TotalByLocation20xx are associated with abortion services preformed
+#   -Financial Data is from 2016. For this project we are using the most relevant public data available from the data sources.
+
+
+
+
+#EDA
+#Plots and basic math to explore the data and answer basic questions about the data
+
+summary(CompleteData4)
+#   Location           Totals2015      Totals2013      Totals2011    State[2:56]        TotalByLocation2015[2:56]
+#Length:50          Min.   :  682   Min.   :  682   Min.   :  682   Length:50          Length:50                
+#Class :character   1st Qu.: 2730   1st Qu.: 2730   1st Qu.: 2730   Class :character   Class :character         
+#Mode  :character   Median : 5300   Median : 5300   Median : 5300   Mode  :character   Mode  :character         
+#Mean   : 8455   Mean   : 8455   Mean   : 8455                                               
+#3rd Qu.:10868   3rd Qu.:10868   3rd Qu.:10868                                               
+#Max.   :55983   Max.   :55983   Max.   :55983                                               
+#TotalByLocation2013[2:56] TotalByLocation2011[2:56]  federalSpend        stateSpend         totalExpend       
+#Length:50                 Length:50                 Min.   :1.148e+07   Length:50          Min.   :2.215e+07  
+#Class :character          Class :character          1st Qu.:5.015e+07   Class :character   1st Qu.:1.363e+08  
+#Mode  :character          Mode  :character          Median :1.464e+08   Mode  :character   Median :3.201e+08  
+#Mean   :2.541e+08                      Mean   :5.683e+08  
+#3rd Qu.:3.004e+08                      3rd Qu.:7.285e+08  
+#Max.   :2.505e+09                      Max.   :4.438e+09  
+
+
+str(CompleteData4)
+#'data.frame':	50 obs. of  11 variables:
+#  $ Location                 : chr  "Alabama" "Alaska" "Arizona" "Arkansas" ...
+#$ Totals2015               : num  4745 2653 17738 4548 55983 ...
+#$ Totals2013               : num  4745 2653 17738 4548 55983 ...
+#$ Totals2011               : num  4745 2653 17738 4548 55983 ...
+#$ State[2:56]              : chr  "Alabama" "Alaska" "Arizona" "Arkansas" ...
+#$ TotalByLocation2015[2:56]: chr  " 5,899 " " 1,334 " " 12,655 " " 3,771 " ...
+#$ TotalByLocation2013[2:56]: chr  "8,485" "1,450" "13,401" "3,730" ...
+#$ TotalByLocation2011[2:56]: chr  "9,523" "1,627" "14,401" "4,033" ...
+#$ federalSpend             : num  6.72e+07 4.61e+07 4.48e+08 9.28e+07 2.51e+09 ...
+#$ stateSpend               : chr  "Unable to provide" "99168369" "442351088" "62120943" ...
+#$ totalExpend              : num  6.72e+07 1.45e+08 8.91e+08 1.55e+08 4.44e+09 ...
+
+range(CompleteData4$Totals2015)
+#[1]   682 55983
+
+plot(factor(CompleteData4$Location), CompleteData4$Totals2015, main = "Children in Foster Care by State 2015") #plotted Children in Foster Care by State 2015 data
+
+ASTotals2015 <- as.factor(CompleteData4$`TotalByLocation2015[2:56]`)
+ASTotals2015
+class(as.numeric(ASTotals2015))
+
+plot(factor(CompleteData4$Location), CompleteData4$totalExpend, main = "Total Expenditures on Children Foster Care 2016")
+#similar to number of children in foster care visually
+
+cor(CompleteData4$Totals2015, CompleteData4$totalExpend) #running cor() to see how closely correlated these variables are
+#[1] 0.8970577 
+# 89.7% correlation
+
+CFC_dens <- density(CompleteData4$Totals2015)  
+plot(CFC_dens, lwd=3, col="blue") #density plot for exploration, deemed unnecessary. 
+
+child <- c(CompleteData4$Totals2015)  #finding how much is spent in total per child in the foster care system by state. 
+TSpe <- c(CompleteData4$totalExpend)
+perChild<- TSpe / child
+perChild
+# [1]  14156.44  54772.80  50217.90  34064.46  79272.00  65082.80 197766.70  98829.23  10837.88  65134.25  82390.35  44925.40  65183.29
+#[14]  47425.83  46096.89  35817.96  74294.28  45362.26  71193.91 129810.06  86915.20  94756.97  73999.92  33622.94  32830.39  28996.74
+#[27]  40955.02  47978.04  84638.56 149041.02  38108.81 107651.38  58492.25  52583.07  98394.21  40730.50  63987.29 107552.14  12130.53
+#[40]  64788.83  46239.89  94330.77  51963.03  67683.41  32701.64 142153.47  50685.33  53887.41  65336.72  47844.90
+
+plot(factor(CompleteData4$Location), perChild, main = "Total Spend per Child by State")
+
+
+
+
+
+
+
+#Machine Learning used to predict variables from CompleteData4
+CFClm<- lm(CompleteData4$totalExpend ~ CompleteData4$Totals2015)
+summary(CFClm)
+#
+#Call:
+#  lm(formula = CompleteData4$totalExpend ~ CompleteData4$Totals2015)
+
+#Residuals:
+#  Min         1Q     Median         3Q        Max 
+#-1.311e+09 -9.433e+07 -1.009e+07  5.352e+07  8.005e+08 
+#
+#Coefficients:
+#  Estimate Std. Error t value Pr(>|t|)    
+#(Intercept)              -30858819   63174587  -0.488    0.627    
+#CompleteData4$Totals2015     70865       5039  14.064   <2e-16 ***
+#  ---
+#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#
+#Residual standard error: 329800000 on 48 degrees of freedom
+#Multiple R-squared:  0.8047,	Adjusted R-squared:  0.8006 
+#F-statistic: 197.8 on 1 and 48 DF,  p-value: < 2.2e-16
+
+plot(CompleteData4$Totals2015,CompleteData4$totalExpend,pch=19,col="blue", main= "Linear Model for Current Children and Predicted Expendatures in Foster Care")
+lines(CompleteData4$Totals2015,CFClm$fitted,col="red",lwd=3) #drawing regression line through plot
+
+CFClm$coef
+# (Intercept) CompleteData4$Totals2015 
+#-30858819.19                 70865.19 
+
+
+AST <- gsub("[ [:punct:]]", "" , ASTotals2015) #Need to remove quotation and extra punctuation out of TotalsByLocation2015 (Abortion Service Totals 2015)
+class(AST)
+#[1] "character"
+ASTData <- as.numeric(AST)
+ASTData
+# [1]  5899  1334 12655  3771    NA 10114  9938  2785 72023 31009  2026  1272 39856  7957  3989  6931  3188  9362  1836    NA 18570 27151
+#[23]  9861  2613  4765  1611  2004  7116    NA 22991  4669 29450 27631  1166 20976  4709  8610 31818  2649  5778   444 11411 53940  3176
+#[45]  1265 18663 17098  1516  5660    NA
+ASTData[is.na(ASTData)] <- 0  #NA's value will be 0 to represent 0 Abortion Services to include in count with CompleteData4
+ASTData
+# [1]  5899  1334 12655  3771     0 10114  9938  2785 72023 31009  2026  1272 39856  7957  3989  6931  3188  9362  1836     0 18570 27151
+#[23]  9861  2613  4765  1611  2004  7116     0 22991  4669 29450 27631  1166 20976  4709  8610 31818  2649  5778   444 11411 53940  3176
+#[45]  1265 18663 17098  1516  5660     0
+
+plot(factor(CompleteData4$Location), ASTData, main = "Abortion Service Totals by State 2015")
+#based on these two plots, vast differences in some states. 
+
+ACTotal <- ASTData + CompleteData4$Totals2015  #adding Abortion Service Totals to Chilren in Foster Care Totals for 2015
+ACTotal
+# [1] 10644  3987 30393  8319 55983 15758 13846  3467 94385 41944  3386  2623 56510 24980  9907 14154 10726 13907  3709  3913 28853 39399
+#[23] 17471  7386 16925  4418  5891 11601  1004 29865  7140 50371 37955  2525 34181 15882 15979 47867  4475  9504  1724 19191 83930  5880
+#[45]  2597 23398 27763  6472 12751  1082
+
+predict_spend <-  CFClm$coeff[1] + 10644 * CFClm$coeff[2] #predicting what Alabama would spend per child in Foster Care if abortion services were directly added to children in foster care with current data
+predict_spend
+#(Intercept) 
+#723430308
+
+NewChildTotal<- perChild * ACTotal
+NewChildTotal
+# [1]  150681143  218379145 1526272550  283382248 4437884139 1025574800 2738277673  342640946 1022933428 2731991148  278973723  117839331
+#[13] 3683507933 1184697160  456681852  506967370  796880475  630853012  264058209  507946784 2507764339 3733329779 1292852666  248339004
+#[25]  555654326  128107578  241266011  556593201   84977119 4451110112  272096934 5422507679 2220073536  132772255 3363212355  646881726
+#[37] 1022452849 5148198113   54284102  615753031   79717575 1810301751 4361257201  397978467   84926162 3326106844 1407176826  348759345
+#[49]  833108570   51768183
+
+
+ACTotal_lm <- lm(NewChildTotal ~ ACTotal)
+summary(ACTotal_lm)
+#
+#Call:
+#  lm(formula = NewChildTotal ~ ACTotal)
+#
+#Residuals:
+#  Min         1Q     Median         3Q        Max 
+#-4.409e+09 -3.951e+08 -2.631e+08  4.931e+07  2.542e+09 
+#
+#Coefficients:
+#  Estimate Std. Error t value Pr(>|t|)    
+#(Intercept) 278485862  205916159   1.352    0.183    
+#ACTotal         54599       7186   7.598 8.97e-10 ***
+#  ---
+#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#
+#Residual standard error: 1.047e+09 on 48 degrees of freedom
+#Multiple R-squared:  0.546,	Adjusted R-squared:  0.5365 
+#F-statistic: 57.73 on 1 and 48 DF,  p-value: 8.974e-10
+
+plot(ACTotal_lm) #exploring the linear model for this argument
+
+plot(ACTotal,NewChildTotal,pch=19,col="orange", main= "Predicted Total Child Foster Care Expenditures If No Abortion Services Were Provided 2015")
+lines(ACTotal,ACTotal_lm$fitted,col="red",lwd=3)
+
+
+Predict_df <- cbind(ACTotal, NewChildTotal, factor(CompleteData4$Location))
+class(Predict_df)
+#[1] "matrix"
+PDFwithNAs<- as.data.frame(Predict_df)
+#   ACTotal NewChildTotal V3
+#1    10644     150681143  1
+#2     3987     218379145  2
+#3    30393    1526272550  3
+#4     8319     283382248  4
+#5    55983    4437884139  5
+#6    15758    1025574800  6.........
+class(PDFwithNAs)
+#[1] "data.frame"
+
+PDF <- na.omit(PDFwithNAs)
+
+n <- nrow(PDF)  # Number of observations = 50
+
+ntrain <- round(n*0.6)    # 60% for training set, 30 observations
+
+set.seed(30)             # Set seed for reproducible results
+
+index <- sample(n, ntrain)
+
+trainPDF <- PDF[index,]  # Creating training set
+
+testPDF <- PDF[-index,]   #Creating test set
+
+PDF_lm <- lm(PDF, data=trainPDF)
+summary(PDF_lm)
+#Call:
+#  lm(formula = PDF, data = trainPDF)
+
+#Residuals:
+#  Min     1Q Median     3Q    Max 
+#-28402  -6309  -1481    377  73258 
+
+#Coefficients:
+#  Estimate Std. Error t value Pr(>|t|)    
+#(Intercept)    1.018e+04  6.924e+03   1.470    0.153    
+#NewChildTotal  1.212e-05  2.563e-06   4.731 6.28e-05 ***
+#  V3            -1.619e+02  1.998e+02  -0.810    0.425    
+#---
+#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#Residual standard error: 17170 on 27 degrees of freedom
+#Multiple R-squared:  0.4678,	Adjusted R-squared:  0.4283 
+#F-statistic: 11.86 on 2 and 27 DF,  p-value: 0.0002007
+
+plot(PDF_lm$fitted, PDF_lm$residuals)
+plot(PDF_lm$residuals, pch=19)
+predict2PDF <- predict(PDF_lm, newdata=testPDF)
+cor(predict2PDF, testPDF)
+#       ACTotal NewChildTotal        V3
+#[1,] 0.9441518     0.9962143 0.1136576
+# highly correlated
+
+
+
+#So much left to be explored and worked on. 
