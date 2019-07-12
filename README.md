@@ -1,3 +1,6 @@
+UPDATE 7/11/2019: Need to debug current code to properly combine CompleteDF4. Working on it... 
+
+
 # Predicted-Foster-Care-Expenditures-if-Abortion-is-Illegal-in-USA
 RScript for analysis of child foster care expenditures, abortion service totals by state, number of children in the US foster care system.
 
